@@ -1,6 +1,5 @@
 # Taken from: https://github.com/dideler/dotfiles/blob/master/functions/extract.fish
-
-function extract --description "Expand or extract bundled & compressed files"
+function _extract --description "Expand or extract bundled & compressed files"
   set --local ext (echo $argv[1] | awk -F. '{print $NF}')
   switch $ext
     case tar  # non-compressed, just bundled
@@ -18,8 +17,17 @@ function extract --description "Expand or extract bundled & compressed files"
     case rar
       unrar x $argv[1]
     case zip
-      unzip $argv[1]
+      set dir (echo $argv[1] | awk -F. '{print $(NF-1)}')
+      unzip $argv[1] -d "$dir"
     case '*'
       echo "unknown extension"
+      return 1
+    return $status
+  end
+end
+
+function extract --description "Expand or extract bundled & compressed files"
+  if _extract $argv
+    rm -rf $argv[1]
   end
 end
